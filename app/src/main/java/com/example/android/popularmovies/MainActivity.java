@@ -10,6 +10,9 @@ import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
@@ -93,4 +96,26 @@ public class MainActivity extends AppCompatActivity {
         mErrorMessagetv.setVisibility(View.VISIBLE);
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = this.getMenuInflater();
+        inflater.inflate(R.menu.sorting_movies, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if(id == R.id.topRated){
+            sortby = "top_rated";
+            makeMoviesSearchQuery();
+            return true;
+        }
+        if(id == R.id.mostPopular){
+            sortby = "popular";
+            makeMoviesSearchQuery();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 }
