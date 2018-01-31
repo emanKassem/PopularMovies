@@ -78,7 +78,14 @@ public class MainActivity extends AppCompatActivity {
             if (movieJsonResults != null && !movieJsonResults.equals("")) {
                 showRecycleView();
                 movies = NetworkUtils.extractResultFromJson(movieJsonResults);
-                MoviesAdapter moviesAdapter = new MoviesAdapter(MainActivity.this ,movies);
+                MoviesAdapter moviesAdapter = new MoviesAdapter(MainActivity.this, movies, new MoviesAdapter.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(Movie movie) {
+                        Intent i = new Intent(MainActivity.this, MovieProfile.class);
+                        i.putExtra("MOVIE", movie);
+                        startActivity(i);
+                    }
+                });
                 moviesShow.setAdapter(moviesAdapter);
             } else {
                 showErrorMessage();

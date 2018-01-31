@@ -22,9 +22,18 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesHold
 
     ArrayList<Movie>movies;
     Context context;
-    public MoviesAdapter(Context context ,ArrayList<Movie> movies){
+
+    public interface OnItemClickListener {
+
+        void onItemClick(Movie movie);
+    }
+    private final OnItemClickListener listener;
+
+
+    public MoviesAdapter(Context context ,ArrayList<Movie> movies, OnItemClickListener listener){
         this.movies = movies;
         this.context = context;
+        this.listener = listener;
     }
     @Override
     public MoviesAdapter.MoviesHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -36,18 +45,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesHold
     @Override
     public void onBindViewHolder(MoviesAdapter.MoviesHolder holder, int position) {
 
-        final Movie movie = movies.get(position);
-        Picasso.with(holder.poster.getContext())
-                .load(movie.getmPosterPath())
-                .into(holder.poster);
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent i = new Intent(context, MovieProfile.class);
-                i.putExtra("MOVIE", movie);
-                context.startActivity(i);
-            }
-        });
+        holder.bind(movies.get(position), listener);
     }
 
     @Override
@@ -62,6 +60,19 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesHold
         public MoviesHolder(View itemView) {
             super(itemView);
             poster = (ImageView) itemView.findViewById(R.id.image);
+        }
+
+        public void bind(final Movie movie, final OnItemClickListener listener) {
+
+            Picasso.with(poster.getContext())
+                    .load(movie.getmPosterPath())
+                    .into(poster);
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    listener.onItemClick(movie);
+                }
+            });
         }
     }
 }
