@@ -1,7 +1,10 @@
 package com.example.android.popularmovies;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -15,6 +18,7 @@ public class MovieProfile extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_profile);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         title = (TextView) findViewById(R.id.movietitleTV);
         realese_date = (TextView) findViewById(R.id.moviereleasedateTV);
