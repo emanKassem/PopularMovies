@@ -49,6 +49,19 @@ public class NetworkUtils {
         return url;
     }
 
+    public static URL buildUrlForTrailerOrReviews(String id, String type){
+        Uri buildUri = Uri.parse(MOVIE_BASE_URL).buildUpon().appendPath(id).appendPath(type)
+                .appendQueryParameter("api_key", API_KEY).build();
+        URL url = null;
+        try{
+            url = new URL(buildUri.toString());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+
+        return url;
+    }
+
 
     public static String getResponseFromHttpUrl(URL url) throws IOException {
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
@@ -88,12 +101,14 @@ public class NetworkUtils {
                 String posterPath = IMAGE_BASE_URL + IMAGE_SIZE + movie.getString("poster_path");
                 Double vote = movie.getDouble("vote_average");
                 String overView =  movie.getString("overview");
+                int id = movie.getInt("id");
                 Movie m = new Movie();
                 m.setmTitle(title);
                 m.setmReleaseDate(date);
                 m.setmPosterPath(posterPath);
                 m.setmVoteAverage(vote);
                 m.setmOverView(overView);
+                m.setId(id);
                 movies.add(m);
             }
         } catch (JSONException e) {
@@ -103,4 +118,64 @@ public class NetworkUtils {
         return movies;
     }
 
+    public static ArrayList<Review> extactReviewsFromJson(String reviewsJson){
+        // If the JSON string is empty or null, then return early.
+        if (TextUtils.isEmpty(reviewsJson)) {
+            return null;
+        }
+
+        ArrayList<Review> reviews = new ArrayList<>();
+
+        try {
+            JSONObject reader = new JSONObject(reviewsJson);
+            JSONArray resultArray = reader.getJSONArray("results");
+            for(int i=0; i< resultArray.length(); i++) {
+                JSONObject review = resultArray.getJSONObject(i);
+                String contents = review.getString("content");
+                String author = review.getString("author");
+                Review r = new Review();
+                r.setAuthor(author);
+                r.setContent(contents);
+                reviews.add(r);
+            }
+        } catch (JSONException e) {
+            Log.e("NetworkUtils", "Problem parsing the news JSON results", e);
+        }
+
+        return reviews;
+    }
+
+
+    public static ArrayList<Trailer> extactTrailersFromJson(String trailersJson){
+        // If the JSON string is empty or null, then return early.
+        if (TextUtils.isEmpty(trailersJson)) {
+            return null;
+        }
+
+        ArrayList<Trailer> trailers = new ArrayList<>();
+
+        try {
+            JSONObject reader = new JSONObject(trailersJson);
+            JSONArray resultArray = reader.getJSONArray("results");
+            for(int i=0; i< resultArray.length(); i++) {
+                JSONObject trailer = resultArray.getJSONObject(i);
+                String id = trailer.getString("id");
+                String key = trailer.getString("key");
+                String name = trailer.getString("name");
+                String site = trailer.getString("site");
+                String type = trailer.getString("type");
+                Trailer t = new Trailer();
+                t.setId(id);
+                t.setKey(key);
+                t.setName(name);
+                t.setSite(site);
+                t.setType(type);
+                trailers.add(t);
+            }
+        } catch (JSONException e) {
+            Log.e("NetworkUtils", "Problem parsing the news JSON results", e);
+        }
+
+        return trailers;
+    }
 }

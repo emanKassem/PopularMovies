@@ -26,6 +26,7 @@ public class Movie implements Parcelable{
         this.mPosterPath =  in.readString();
         this.mVoteAverage = in.readDouble();
         this.mOverView =  in.readString();
+        this.id = in.readInt();
     }
 
     private String mTitle;
@@ -69,11 +70,20 @@ public class Movie implements Parcelable{
         return mOverView;
     }
 
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
     public void setmOverView(String mOverView) {
         this.mOverView = mOverView;
     }
 
     private String mOverView;
+    private int id;
 
     public Movie(){
     }
@@ -91,5 +101,6 @@ public class Movie implements Parcelable{
         parcel.writeString(this.mPosterPath);
         parcel.writeDouble(this.mVoteAverage);
         parcel.writeString(this.mOverView);
+        parcel.writeInt(this.id);
     }
 }

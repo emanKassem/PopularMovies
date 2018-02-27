@@ -77,5 +77,51 @@
         android:layout_width="match_parent"
         android:layout_height="8dp"
         android:background="#e1e1e1" />
+    <LinearLayout
+        android:id="@+id/layoutForTrailer"
+        android:layout_marginTop="8dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone">
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        android:text="Trailers"
+        android:textColor="@android:color/black" />
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/trailerRecycleView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+    <View
+            android:layout_marginTop="6dp"
+            android:layout_width="match_parent"
+            android:layout_height="8dp"
+            android:background="#e1e1e1" />
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/layoutForReviews"
+        android:layout_marginTop="8dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone">
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        android:text="Reviews"
+        android:textColor="@android:color/black" />
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/reviewsRecycleView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+    <View
+            android:layout_marginTop="6dp"
+            android:layout_width="match_parent"
+            android:layout_height="8dp"
+            android:background="#e1e1e1" />
+    </LinearLayout>
 </LinearLayout>
 </ScrollView>
