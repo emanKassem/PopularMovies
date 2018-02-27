@@ -1,6 +1,7 @@
 package com.example.android.popularmovies;
 
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -10,6 +11,7 @@ import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -19,6 +21,8 @@ import android.widget.TextView;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+
+import data.MoviesContract;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -93,6 +97,34 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public class FavoriteQueryTask extends AsyncTask<Void, Void, Cursor>{
+
+        @Override
+        protected Cursor doInBackground(Void... voids) {
+            try {
+                return getContentResolver().query(MoviesContract.MovieEntry.CONTENT_URI,
+                        null,
+                        null,
+                        null,
+                        null);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Cursor cursor) {
+            if(cursor != null) {
+                showRecycleView();
+                FavoriteAdapter favoriteAdapter = new FavoriteAdapter(MainActivity.this);
+                favoriteAdapter.swapCursor(cursor);
+                moviesShow.setAdapter(favoriteAdapter);
+            }
+        }
+    }
+
     private void showRecycleView() {
         mErrorMessagetv.setVisibility(View.INVISIBLE);
         moviesShow.setVisibility(View.VISIBLE);
@@ -122,6 +154,9 @@ public class MainActivity extends AppCompatActivity {
             sortby = "popular";
             makeMoviesSearchQuery();
             return true;
+        }
+        else if(id == R.id.favorite){
+            new FavoriteQueryTask().execute();
         }
         return super.onOptionsItemSelected(item);
     }

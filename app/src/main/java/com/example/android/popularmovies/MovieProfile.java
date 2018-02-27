@@ -1,6 +1,8 @@
 package com.example.android.popularmovies;
 
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -21,10 +23,13 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 
+import data.MoviesContract;
+import data.MoviesContract.MovieEntry;
+
 public class MovieProfile extends AppCompatActivity {
 
    TextView title, realese_date, rate, overview;
-   ImageView poster;
+   ImageView poster, favorite;
    LinearLayout reviewsLinearLayout, trailersLinearLayout;
    RecyclerView reviewRecyclerView, trailerRecyclerView;
    ArrayList<Review> reviews = new ArrayList<>();
@@ -40,11 +45,11 @@ public class MovieProfile extends AppCompatActivity {
         rate = findViewById(R.id.movieratTV);
         overview = findViewById(R.id.moviedescTV);
         poster = findViewById(R.id.movieposteIMG);
+        favorite = findViewById(R.id.imageViewFavorite);
         reviewsLinearLayout = findViewById(R.id.layoutForReviews);
         trailersLinearLayout = findViewById(R.id.layoutForTrailer);
         reviewRecyclerView = findViewById(R.id.reviewsRecycleView);
         trailerRecyclerView = findViewById(R.id.trailerRecycleView);
-
         LinearLayoutManager layoutManager = new LinearLayoutManager(MovieProfile.this);
         reviewRecyclerView.setLayoutManager(layoutManager);
         LinearLayoutManager layoutManager2 = new LinearLayoutManager(MovieProfile.this);
@@ -52,7 +57,7 @@ public class MovieProfile extends AppCompatActivity {
 
         Bundle bundle = getIntent().getExtras();
 
-        Movie movie = (Movie) bundle.getParcelable("MOVIE");
+        final Movie movie = bundle.getParcelable("MOVIE");
         title.setText(movie.getmTitle());
         realese_date.setText(movie.getmReleaseDate());
         rate.setText(movie.getmVoteAverage().toString());
@@ -62,6 +67,16 @@ public class MovieProfile extends AppCompatActivity {
                 .into(poster);
 
         makeReviewsAndTrailersSearchQuery(movie.getId());
+
+        if(checkIfMovieInDb(movie)){
+            favorite.setImageResource(R.drawable.ic_favorite_black_24px);
+        }
+        favorite.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onClickAddMovie(movie);
+            }
+        });
     }
 
     private void makeReviewsAndTrailersSearchQuery(int id) {
@@ -77,6 +92,52 @@ public class MovieProfile extends AppCompatActivity {
             URL trailersSearchQuery = NetworkUtils.buildUrlForTrailerOrReviews(String.valueOf(id), "videos");
             new TrailerQueryTask().execute(trailersSearchQuery);
         }
+    }
+
+    public void onClickAddMovie(Movie movie) {
+        boolean b = checkIfMovieInDb(movie);
+        if(b != true) {
+            insertMovieIntoDb(movie);
+            favorite.setImageResource(R.drawable.ic_favorite_black_24px);
+        }
+        else{
+            favorite.setImageResource(R.drawable.ic_favorite_border_black_24px);
+            deleteMovieFromDb(movie);
+        }
+    }
+
+    private void deleteMovieFromDb(Movie movie) {
+        String[] selectionArg = {String.valueOf(movie.getId())};
+        getContentResolver().delete(MovieEntry.CONTENT_URI, MovieEntry.COLUMN_ID+"=?", selectionArg);
+    }
+
+    private boolean checkIfMovieInDb(Movie movie) {
+        Cursor cursor = getContentResolver().query(
+                MoviesContract.MovieEntry.CONTENT_URI, null, null, null, null);
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
+                int movieId = cursor.getInt(
+                        cursor.getColumnIndex(MovieEntry.COLUMN_ID));
+                if (movieId == movie.getId()) {
+                    return true;
+                }
+            }
+        }
+        if (cursor != null) {
+            cursor.close();
+        }
+        return false;
+    }
+
+    private void insertMovieIntoDb(Movie movie) {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(MovieEntry.COLUMN_ID, movie.getId());
+        contentValues.put(MovieEntry.COLUMN_TITLE, movie.getmTitle());
+        contentValues.put(MovieEntry.COLUMN_RELEASE_DATE, movie.getmReleaseDate());
+        contentValues.put(MovieEntry.COLUMN_POSTER_PATH, movie.getmPosterPath());
+        contentValues.put(MovieEntry.COLUMN_VOTE_AVERAGE, movie.getmVoteAverage());
+        contentValues.put(MovieEntry.COLUMN_OVERVIEW, movie.getmOverView());
+        getContentResolver().insert(MovieEntry.CONTENT_URI, contentValues);
     }
 
     public class ReviewQueryTask extends AsyncTask<URL, Void, String>{
